@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VSvgCode - SVG Code Editor</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="editor-pane">
+        <div id="toolbar">
+          <label id="vim-label" title="Toggle Vim mode (Ctrl+Shift+V)">
+            <input type="checkbox" id="vim-toggle" />
+            <span>Vim</span>
+          </label>
+          <div class="toolbar-separator"></div>
+          <button id="save-svg-code" title="Save SVG code (Ctrl+S)">Save SVG</button>
+          <button id="export-png" title="Export as PNG">Export PNG</button>
+          <button id="export-jpeg" title="Export as JPEG">Export JPEG</button>
+        </div>
+      </div>
+      <div id="preview-pane">
+        <div id="preview-container"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
