@@ -1,9 +1,11 @@
 import "./styles.css";
-import { createEditor, setVimMode } from "./editor";
+import { createEditor, setVimMode, setEditorContent } from "./editor";
 import { SvgPreview } from "./preview";
 import { buildMapping } from "./line-mapper";
 import { Highlighter } from "./highlighter";
 import { saveSvgCode, exportPng, exportJpeg } from "./export";
+import * as archive from "./archive";
+import { createArchivePanel, renderList, togglePanel, closePanel } from "./archive-ui";
 
 const DEFAULT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
   <!-- Background -->
@@ -85,8 +87,11 @@ function init() {
     },
   });
 
+  // Load draft or use default
+  const initialContent = archive.loadDraft() || DEFAULT_SVG;
+
   // Create editor with Vim toggle callback
-  const editorView = createEditor(editorPane, DEFAULT_SVG, {
+  const editorView = createEditor(editorPane, initialContent, {
     onCursorLineChange(line) {
       highlighter.onCursorLineChange(line);
     },
@@ -128,16 +133,48 @@ function init() {
     exportJpeg(getEditorContent(editorView));
   });
 
-  // Ctrl+S to save SVG code
+  // Archive panel
+  const archivePanel = createArchivePanel({
+    onSave(name) {
+      archive.save(name, getEditorContent(editorView));
+      renderList(archive.getAll());
+    },
+    onLoad(entry) {
+      setEditorContent(editorView, entry.content);
+      closePanel();
+    },
+    onDelete(id) {
+      archive.remove(id);
+      renderList(archive.getAll());
+    },
+  });
+  editorPane.appendChild(archivePanel);
+
+  document.getElementById("open-archive")!.addEventListener("click", () => {
+    renderList(archive.getAll());
+    togglePanel();
+  });
+
+  // Keyboard shortcuts
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && !e.shiftKey && e.key === "s") {
       e.preventDefault();
       saveSvgCode(getEditorContent(editorView));
     }
+    if (e.ctrlKey && e.shiftKey && e.key === "A") {
+      e.preventDefault();
+      renderList(archive.getAll());
+      togglePanel();
+    }
+  });
+
+  // Auto-save draft on page unload
+  window.addEventListener("beforeunload", () => {
+    archive.saveDraft(getEditorContent(editorView));
   });
 
   // Initial render
-  updatePreview(DEFAULT_SVG);
+  updatePreview(initialContent);
 }
 
 init();

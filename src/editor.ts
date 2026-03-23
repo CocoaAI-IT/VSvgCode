@@ -157,6 +157,12 @@ export function clearEditorHighlight(view: EditorView) {
   view.dispatch({ effects: setHighlightedLine.of(0) });
 }
 
+export function setEditorContent(view: EditorView, content: string) {
+  view.dispatch({
+    changes: { from: 0, to: view.state.doc.length, insert: content },
+  });
+}
+
 export function focusEditorLine(view: EditorView, lineNumber: number) {
   if (lineNumber < 1 || lineNumber > view.state.doc.lines) return;
   const line = view.state.doc.line(lineNumber);
